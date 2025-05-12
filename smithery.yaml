@@ -4,4 +4,12 @@ build:
 startCommand:
   type: stdio
   commandFunction: |-
-    (config) => ({ command: 'uv', args: ['run', 'main.py'] })
+    (config) => ({ command: 'uv', args: ['run', 'main.py'] }, { env: { THINGS_TOKEN: config.token } })
+  configSchema:
+    type: object
+    required:
+      - token
+    properties:
+      token:
+        type: string
+        description: Things URL authentication token. Can be found in the Things 3 settings.
