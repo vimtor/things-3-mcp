@@ -1,0 +1,7 @@
+build:
+  dockerBuildPath: .
+
+startCommand:
+  type: stdio
+  commandFunction: |-
+    (config) => ({ command: 'uv', args: ['run', 'main.py'] })
