@@ -204,4 +204,4 @@ async def create_project(title: str, area: str = None, notes: str = None, when: 
 
 if __name__ == "__main__":
     print("Starting MCP server for Things 3")
-    mcp.run(transport='streamable-http')
+    mcp.run(transport='stdio')

@@ -2,7 +2,7 @@ build:
   dockerBuildPath: .
 
 startCommand:
-  type: http
+  type: stdio
   commandFunction: |-
     (config) => ({ command: 'uv', args: ['run', 'main.py'] }, { env: { THINGS_TOKEN: config.token } })
   configSchema:
