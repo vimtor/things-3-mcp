@@ -74,24 +74,38 @@ async def get_tags() -> list[Any]:
     return things.tags()
 
 @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
+async def get_project_todos(id: str) -> list[Any]:
+    """Get all todos for a project."""
+    return things.todos(project=id)
+
+@mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
+async def get_area_todos(id: str) -> list[Any]:
+    """Get all todos for an area."""
+    return things.todos(area=id)
+
+@mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
 async def search(query: str) -> list[Any]:
-    """Search for todos, projects, areas, and tags."""
+    """Search for todos, projects, areas, and tags.
+    
+    Args:
+        query: Only pass the necessary keywords as if you were doing a Google search. If you didn't get a result, try a different query.
+    """
     return things.search(query)
 
 @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
-async def get_task(uuid: str) -> list[Any]:
-    """Get a task by UUID."""
-    return things.get(uuid)
+async def get_task(id: str) -> list[Any]:
+    """Get a task by ID."""
+    return things.get(id)
 
 def run_command(command: str, **arguments: Any) -> None:
     subprocess.Popen(['open', '-g', things.url(command=command, token=os.getenv('THINGS_TOKEN'), reveal=False, **arguments)])
 
 @mcp.tool(annotations=ToolAnnotations(idempotentHint=True,destructiveHint=False))
-async def update_todo(uuid: str, title: str = None, completed: bool = None, notes: str = None, when: str = None, deadline: str = None) -> None:
+async def update_todo(id: str, title: str = None, completed: bool = None, notes: str = None, when: str = None, deadline: str = None) -> None:
     """Update a todo.
     
     Args:
-        uuid: The UUID of the todo to update.
+        id: The ID of the todo to update.
         title: The new title of the todo.
         completed: Whether the todo is completed.
         notes: The new notes of the todo.
@@ -110,14 +124,14 @@ async def update_todo(uuid: str, title: str = None, completed: bool = None, note
     if deadline:
         arguments['deadline'] = deadline
 
-    run_command('update', uuid=uuid, **arguments)
+    run_command('update', id=id, **arguments)
 
 @mcp.tool(annotations=ToolAnnotations(idempotentHint=True,destructiveHint=False))
-async def update_project(uuid: str, title: str = None, completed: bool = None, notes: str = None, when: str = None, deadline: str = None) -> None:
+async def update_project(id: str, title: str = None, completed: bool = None, notes: str = None, when: str = None, deadline: str = None) -> None:
     """Update a project.
     
     Args:
-        uuid: The UUID of the project to update.
+        id: The ID of the project to update.
         title: The new title of the project.
         completed: Whether the project is completed.
         notes: The new notes of the project.
@@ -136,22 +150,22 @@ async def update_project(uuid: str, title: str = None, completed: bool = None, n
     if deadline:
         arguments['deadline'] = deadline
 
-    run_command('update-project', uuid=uuid, **arguments)
+    run_command('update-project', id=id, **arguments)
 
 @mcp.tool(annotations=ToolAnnotations(idempotentHint=True,destructiveHint=False))
-async def create_todo(title: str, list_id: str = None, notes: str = None, when: str = None, deadline: str = None) -> None:
+async def create_todo(title: str, list: str = None, notes: str = None, when: str = None, deadline: str = None) -> None:
     """Create a todo.
     
     Args:
         title: The title of the todo.
-        list_id: The ID of a project or area to add to.
+        list: The title of a project or area to add to.
         notes: The notes of the todo.
         when: When should the todo be completed. Can be a date following the format YYYY-MM-DD or a string like "tomorrow", "in 3 days", etc.
         deadline: The deadline of the todo. Can be a date following the format YYYY-MM-DD or a string like "tomorrow", "in 3 days", etc.
     """
     arguments = {}
-    if list_id:
-        arguments['list_id'] = list_id
+    if list:
+        arguments['list'] = list
     if title:
         arguments['title'] = title
     if notes:
@@ -164,19 +178,19 @@ async def create_todo(title: str, list_id: str = None, notes: str = None, when: 
     run_command('add', **arguments)
 
 @mcp.tool(annotations=ToolAnnotations(idempotentHint=True,destructiveHint=False))
-async def create_project(title: str, area_id: str = None, notes: str = None, when: str = None, deadline: str = None) -> None:
+async def create_project(title: str, area: str = None, notes: str = None, when: str = None, deadline: str = None) -> None:
     """Create a project.
     
     Args:
         title: The title of the project.
-        area_id: The ID of an area to add the project to.
+        area: The title of an area to add the project to.
         notes: The notes of the project.
         when: When should the project be completed. Can be a date following the format YYYY-MM-DD or a string like "tomorrow", "in 3 days", etc.
         deadline: The deadline of the project. Can be a date following the format YYYY-MM-DD or a string like "tomorrow", "in 3 days", etc.
     """
     arguments = {}
-    if area_id:
-        arguments['area_id'] = area_id
+    if area:
+        arguments['area'] = area
     if title:
         arguments['title'] = title
     if notes:
