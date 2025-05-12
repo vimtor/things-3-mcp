@@ -20,6 +20,30 @@ async def get_inbox() -> list[Any]:
     return things.inbox()
 
 @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
+async def get_trash() -> list[Any]:
+    """Get trash contents."""
+    return things.trash()
+
+@mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
+async def get_logbook() -> list[Any]:
+    """Get logbook contents."""
+    return things.logbook()
+
+@mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
+async def get_completed(last: str = None) -> list[Any]:
+    """Get completed todos and projects.
+    
+    Args:
+        last: Limit returned tasks to tasks created within the last X days, weeks, or years. For example: '3d', '5w', or '1y'.
+    """
+    return things.completed(last=last)
+
+@mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
+async def get_deadlines() -> list[Any]:
+    """Get deadlines."""
+    return things.deadlines()
+
+@mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
 async def get_anytime() -> list[Any]:
     """Get anytime todos and projects."""
     return things.anytime()
@@ -43,6 +67,21 @@ async def get_projects() -> list[Any]:
 async def get_areas() -> list[Any]:
     """Get all areas."""
     return things.areas()
+
+@mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
+async def get_tags() -> list[Any]:
+    """Get all tags."""
+    return things.tags()
+
+@mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
+async def search(query: str) -> list[Any]:
+    """Search for todos, projects, areas, and tags."""
+    return things.search(query)
+
+@mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
+async def get_task(uuid: str) -> list[Any]:
+    """Get a task by UUID."""
+    return things.get(uuid)
 
 def run_command(command: str, **arguments: Any) -> None:
     subprocess.Popen(['open', '-g', things.url(command=command, token=os.getenv('THINGS_TOKEN'), reveal=False, **arguments)])
