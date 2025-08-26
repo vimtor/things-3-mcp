@@ -17,6 +17,20 @@ When asked for todos in general, return today's todos.
 )
 
 
+# Optional: Handle configuration for backwards compatibility with stdio mode
+# This function is only needed if you want to support stdio transport alongside HTTP
+def handle_config(config: dict):
+    """Handle configuration from Smithery - for backwards compatibility with stdio mode."""
+    global _token
+    if token := config.get("token"):
+        _token = token
+    # You can handle other session config fields here
+
+
+# Store token for stdio mode (backwards compatibility)
+_token: Optional[str] = None
+
+
 def get_request_config() -> dict:
     """Get full config from current request context."""
     try:
@@ -290,31 +304,46 @@ async def create_project(
 
 
 def main():
-    # HTTP mode with config extraction from URL parameters
-    print("Character Counter MCP Server starting in HTTP mode...")
+    transport_mode = os.getenv("TRANSPORT", "stdio")
 
-    # Setup Starlette app with CORS for cross-origin requests
-    app = mcp.streamable_http_app()
+    if transport_mode == "http":
+        # HTTP mode with config extraction from URL parameters
+        print("Character Counter MCP Server starting in HTTP mode...")
 
-    # IMPORTANT: add CORS middleware for browser based clients
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["GET", "POST", "OPTIONS"],
-        allow_headers=["*"],
-        expose_headers=["mcp-session-id", "mcp-protocol-version"],
-        max_age=86400,
-    )
+        # Setup Starlette app with CORS for cross-origin requests
+        app = mcp.streamable_http_app()
 
-    # Apply custom middleware for session config extraction
-    app = SmitheryConfigMiddleware(app)
+        # IMPORTANT: add CORS middleware for browser based clients
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_credentials=True,
+            allow_methods=["GET", "POST", "OPTIONS"],
+            allow_headers=["*"],
+            expose_headers=["mcp-session-id", "mcp-protocol-version"],
+            max_age=86400,
+        )
 
-    # Use Smithery-required PORT environment variable
-    port = int(os.environ.get("PORT", 8081))
-    print(f"Listening on port {port}")
+        # Apply custom middleware for session config extraction
+        app = SmitheryConfigMiddleware(app)
 
-    uvicorn.run(app, host="0.0.0.0", port=port, log_level="debug")
+        # Use Smithery-required PORT environment variable
+        port = int(os.environ.get("PORT", 8081))
+        print(f"Listening on port {port}")
+
+        uvicorn.run(app, host="0.0.0.0", port=port, log_level="debug")
+
+    else:
+        # Optional: if you need backward compatibility, add stdio transport
+        # You can publish this to uv for users to run locally
+        print("Character Counter MCP Server starting in stdio mode...")
+
+        token = os.getenv("TOKEN")
+        # Set the server token for stdio mode
+        handle_config({"token": token})
+
+        # Run with stdio transport (default)
+        mcp.run()
 
 
 if __name__ == "__main__":
