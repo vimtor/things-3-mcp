@@ -1,15 +1,15 @@
+runtime: "container"
 build:
-  dockerBuildPath: .
-
+  dockerfile: "Dockerfile"
+  dockerBuildPath: "."
 startCommand:
-  type: stdio
-  commandFunction: |-
-    (config) => ({ command: 'uv', args: ['run', 'main.py'] }, { env: { THINGS_TOKEN: config.token } })
+  type: "http"
   configSchema:
-    type: object
-    required:
-      - token
+    type: "object"
     properties:
       token:
-        type: string
-        description: Things URL authentication token. Can be found in the Things 3 settings.
+        type: "string"
+        description: "Things URL authentication token. Can be found in the Things 3 settings."
+    required: ["token"]
+  exampleConfig:
+    token: "PMT3SfNhTnG_NpxIr4ML6U"
