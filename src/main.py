@@ -308,7 +308,7 @@ def main():
 
     if transport_mode == "http":
         # HTTP mode with config extraction from URL parameters
-        print("Character Counter MCP Server starting in HTTP mode...")
+        print("Things 3 MCP Server starting in HTTP mode...")
 
         # Setup Starlette app with CORS for cross-origin requests
         app = mcp.streamable_http_app()
@@ -336,7 +336,7 @@ def main():
     else:
         # Optional: if you need backward compatibility, add stdio transport
         # You can publish this to uv for users to run locally
-        print("Character Counter MCP Server starting in stdio mode...")
+        print("Things 3 MCP Server starting in stdio mode...")
 
         token = os.getenv("TOKEN")
         # Set the server token for stdio mode
